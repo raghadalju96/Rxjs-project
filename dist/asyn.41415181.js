@@ -11176,16 +11176,18 @@ var _zipWith = require("./internal/operators/zipWith");
 var _rxjs = require("rxjs");
 
 //Pushing Asynchronous Values
+//Unsubscribing from Observables
 var opservable = new _rxjs.Observable(function (subscriber) {
   var id = setInterval(function () {
-    subscriber.next('test');
-    console.log('leak'), 1000;
-  });
-  subscriber.complete();
-  clearInterval(id);
+    subscriber.next("test");
+    console.log("leak");
+  }, 1000); //  subscriber.complete() // good practice to complete the opservable
+
+  return function () {
+    clearInterval(id);
+  };
 });
-console.log('before');
-opservable.subscribe({
+var subscribtion = opservable.subscribe({
   next: function next(value) {
     console.log(value);
   },
@@ -11193,7 +11195,9 @@ opservable.subscribe({
     console.log("completed");
   }
 });
-console.log('after');
+setTimeout(function () {
+  subscribtion.unsubscribe();
+}, 4000); //If an observer doesn't need to listen to data from an observable anymore, we should unsubscribe from
 },{"rxjs":"../node_modules/rxjs/dist/esm5/index.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
